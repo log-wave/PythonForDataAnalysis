@@ -221,3 +221,198 @@ print('-------------')
 dup_labels = pd.Index(['foo','foo','bar','bar'])
 print(dup_labels)
 print('-------------')
+
+# ---------------------------------------------------------------------------------
+
+
+# 핵심 기능
+# 재색인 : pandas 객체의 중요한 기능 중 하나는 reindex인데 , 새로운 색인에 맞도도록 객체를 새로 생성한다.
+
+obj  = pd.Series([4.5,7.2,-5.3,3.6], index=['d','b','a','c'])
+print(obj)
+print('-------------')
+obj2 = obj.reindex(['a','b','c','d','e'])
+print(obj2)
+print('-------------')
+
+# 시계열 같은 순차적인 데이터를 재색인 할때 값을 보관하거나 채워넣어야 할 경우가 있다.
+# method 옵션을 이용해서 이를 해결 할 수 있으며 , ffill 같은 메서드를 이용하여 누락된 값을 직전의 값으로 채워 넣을 수 있다.
+
+obj3 = pd.Series(['blue','purple','yellow'], index=[0,2,4])
+print(obj3)
+print('-------------')
+print(obj3.reindex(range(6),method='ffill'))
+print('-------------')
+
+# DataFrame 에 대한 reindex는 로우,컬럼 또는 둘 다 변경이 가능하다. 그냥 순서만 전달하면 로우가 재색인된다.
+
+frame = pd.DataFrame(np.arange(9).reshape(3,3),
+                     index=['a','b','c'],
+                     columns=['Ohio','Texas','California'])
+print(frame)
+print('-------------')
+frame2 = frame.reindex(['a','b','c','d'])
+print(frame2)
+print('-------------')
+
+# 재색인은 loc를 이용하여 라벨로 색인할 수 있다.
+
+
+# ---------------------------------------------------------------------------------
+
+# 하나의 로우나 컬럼을 삭제하기
+# drop 메서드를 이용하여 선택한 값들이 삭제된 새로운 객체를 얻을 수 있다.
+
+obj = pd.Series(np.arange(5.),index=['a','b','c','d','e'])
+print(obj)
+print('-------------')
+
+new_obj = obj.drop('c')
+print(new_obj)
+print(obj)
+print('-------------')
+
+print(obj.drop(['d','c']))
+
+# DataFrame 에서는 로우와 칼럼 모두에서 값을 삭제할 수 있다.
+
+data = pd.DataFrame(np.arange(16).reshape(4,4),
+                    index=['Ohio','Colorado','Utah','New York'],
+                    columns=['one','two','three','four'])
+print(data)
+print('-------------')
+
+# drop 함수에 인자로 로우 이름을 넘기면 해당 로우의 값을 모두 삭제 한다.
+new_data = data.drop(['Colorado','Ohio'])
+print(new_data)
+print('-------------')
+
+# 칼럼의 값을 삭제할 때는 axis=1 또는 axis = 'columns'를 인자로 넘겨주면 된다.
+print(data.drop('two',axis=1))
+print('-------------')
+print(data.drop(['two','four'],axis='columns'))
+print('-------------')
+
+# drop 함수처럼 Seris 나 DataFrame 의 크기 또는 형태를 변경하는 함수는 새로운 객체를 반환하는 대신 원본 객체를 변경한다.
+
+obj.drop('c',inplace=True)
+print(obj)
+print('-------------')
+
+# 색인하기 , 선택하기 , 거르기
+
+# Series의 색인은 numpy배열의 색인과 유사하게 동작하지만 정수가 아니어도 된다는 점이 다르다.
+
+obj = pd.Series(np.arange(4.),index=['a','b','c','d'])
+print(obj)
+print('-------------')
+print(obj['b'])
+print('-------------')
+print(obj[1])
+print('-------------')
+print(obj[['b','a','d']])
+print('-------------')
+print(obj[obj<2])
+print('-------------')
+
+
+### 라벨 이름으로 슬라이싱을하면 시작점과 끝점을 포함한다는 것이 일반 파이썬에서의 슬라이싱과 다른 점이다.
+
+print(obj['b':'c'])
+print('-------------')
+
+obj['b':'c'] = 5
+print(obj)
+print('-------------')
+
+# 색인으로 DataFrame에서 하나 이상의 칼럼 값을 가져올 수 있다.
+
+data = pd.DataFrame(np.arange(16).reshape(4,4),
+                    index=['Ohio','Colorado','Utho','New York'],
+                    columns=['one','two','three','four'])
+print(data)
+print('-------------')
+print(data['two'])
+print('-------------')
+print(data[['three','one']])
+
+# 슬라이싱으로 로우를 선택하거나 불리언 배열로 로우를 선택할 수도 있다
+print(data[:3])
+print('-------------')
+print(data[data['three']>5])
+print('-------------')
+# loc와 iloc로 선택하기
+
+print(data.loc['Colorado',['one','two']])
+print('-------------')
+
+print(data.iloc[2,[3,0,1]])
+print('-------------')
+
+print(data.iloc[2])
+print('-------------')
+
+
+# 산술 연산과 데이터 정렬
+
+# Pandas에서 가장 중요한 기능 중 하나는 다른 색인을 가지고 있는 객체 간의 산술 연산이다.
+
+s1 = pd.Series([7.3,-2.5,3.4,1.5], index=['a','c','d','e'])
+s2 = pd.Series([-2.1,3.6,-1.5,4,3.1],
+               index=['a','c','e','f','g'])
+print(s1)
+print('-------------')
+print(s2)
+print(s1+s2)
+print('-------------')
+
+
+# DataFrame 과 Series간의 연산
+
+arr = np.arange(12.).reshape((3,4))
+print(arr)
+print('-------------')
+print(arr[0])
+print('-------------')
+print(arr-arr[0])
+print('-------------')
+
+# 함수 적용과 매핑
+
+# pandas 객체에도 numpy의 유니버설 함수를 적용 할 수 있다.
+frame = pd.DataFrame(np.random.randn(4,3),columns=list('bde'),
+                     index=['Utho','Ohio','Texas','Oregon'])
+print(frame)
+print(np.abs(frame))
+print('-------------')
+
+
+# 정렬과 순위
+obj = pd.Series(range(4),index=['d','a','b','c'])
+print(obj.sort_index())
+
+# DataFrame은 로우나 컬럼 중 하나의 축을 기준으로 정렬할 수 있다.
+frame = pd.DataFrame(np.arange(8).reshape((2,4)),
+                     index=['three','one'],
+                     columns=['d','a','b','c'])
+print(frame.sort_index)
+print('-------------')
+
+# 데이터는 기본적으로 오름차순으로 정렬되고 내림차순으로 정렬 할 수 있다.
+
+print(frame.sort_index(axis=1,ascending=False))
+print('-------------')
+
+# Series 객체를 값에 따라 정렬하고 싶다면 sort_values 메서드를 사용하면 된다.
+
+obj = pd.Series([4,7,-3,2])
+print(obj.sort_values())
+print('-------------')
+
+# 정렬할때 비어있는 값은 기본적으로 Series객체에서 가장 마지막에 위치한다.
+
+obj = pd.Series([4,np.nan,7,np.nan,-3,2])
+print(obj.sort_values())
+print('-------------')
+
+
